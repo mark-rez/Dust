@@ -11,13 +11,22 @@ export default function TaskTable({ table }: TableProps) {
   return (
     <table className="w-full">
       <thead
-        className={`bg-secondary-background border-t border-b border-secondary-text/10 `}
+        className={`bg-secondary-background border-t border-b border-secondary-text/10`}
       >
         <TaskTableHeader headerGroup={table.getHeaderGroups()[0]} />
       </thead>
       <tbody className="text-black">
         {table.getRowModel().rows.map((row) => (
-          <TaskTableRow key={row.id} row={row} />
+          <TaskTableRow
+            key={row.id}
+            row={row}
+            onContextMenu={() => {
+              if (!row.getIsSelected()) {
+                table.resetRowSelection();
+                row.toggleSelected(true);
+              }
+            }}
+          />
         ))}
       </tbody>
     </table>

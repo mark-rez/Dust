@@ -1,9 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
 import { Pause, Play, Plus, RotateCw, Trash2 } from "lucide-react";
-import { useState } from "react";
 
 import { TaskTable } from "@/features/tasks/types/TaskTable";
-import { useTaskStore } from "@/stores/taskStore";
 
 import CurrentViewLabel from "./CurrentViewLabel";
 import IconButton from "./IconButton";
@@ -11,32 +8,20 @@ import TaskCreationModal from "../modal/TaskCreationModal";
 
 interface TopbarProps {
   table: TaskTable;
-}
-
-export default function Topbar({ table }: TopbarProps) {
-  const setShouldPoll = useTaskStore((state) => state.setShouldPoll);
-  const refresh = useTaskStore((state) => state.refresh);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleTaskAction = async (
+  handleTaskAction: (
     action: "spawn_tasks" | "pause_tasks" | "remove_tasks" | "restart_tasks",
     options?: { poll?: boolean; refreshAfter?: boolean },
-  ) => {
-    const hashes = table
-      .getCoreRowModel()
-      .flatRows.filter((row) => row.getIsSelected())
-      .map((row) => row.original.hash);
-    if (!hashes.length) return;
+  ) => Promise<void>;
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+}
 
-    await invoke(action, { hashes });
-
-    if (options?.poll) setShouldPoll(true);
-    if (options?.refreshAfter) refresh();
-
-    table.resetRowSelection();
-  };
-
+export default function Topbar({
+  table,
+  handleTaskAction,
+  isModalOpen,
+  setIsModalOpen
+}: TopbarProps) {
   const buttons = [
     {
       icon: <Plus className="scale-120" />,
